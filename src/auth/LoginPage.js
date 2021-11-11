@@ -8,7 +8,7 @@ export default function LoginPage({ setToken }) {
     let history = useHistory();
     let location = useLocation();
 
-    let { from } = location.state || { from: { pathname: "/dasboard" } };
+    let { from } = location.state || { from: { pathname: "/data/" } };
 
     let [username, setUsername] = useState();
     let [password, setPassword] = useState();

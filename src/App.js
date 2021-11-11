@@ -21,9 +21,9 @@ export default function App() {
 
       <Navbar bg="primary" variant="dark">
         <Container>
-        <Navbar.Brand href="/dashboard">SyncBox</Navbar.Brand>
+        <Navbar.Brand href="/data/">SyncBox</Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+          <Nav.Link href="/data/">Dashboard</Nav.Link>
           <Nav.Link href="#pricing">Pricing</Nav.Link>
         </Nav>
         <Navbar.Text>{token?.user}</Navbar.Text>
@@ -34,7 +34,7 @@ export default function App() {
         <Switch>
           <Route exact path="/register"><RegisterPage setToken={saveToken} /></Route>
           <Route exact path="/login"><LoginPage setToken={saveToken} /></Route>
-          <PrivateRoute exact path="/dashboard"><DashboardPage /></PrivateRoute>
+          <PrivateRoute path="/data/*"><DashboardPage /></PrivateRoute>
         </Switch>
       </div>
     </Router>
