@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link, useHistory } from "react-
 import LoginPage from "./auth/LoginPage";
 import PrivateRoute from "./auth/PrivateRoute";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from "react-bootstrap";
+import { Button, Container, Nav, Navbar } from "react-bootstrap";
 import RegisterPage from "./auth/RegisterPage";
 import axios from "axios";
 import useToken from "./auth/Token";
@@ -18,17 +18,23 @@ export default function App() {
   return (
     <Router>
       <div>
-        <p>{token?.user}</p>
-        <AuthButton token={token} deleteToken={deleteToken} />
 
-        <ul>
-          <li><Link to="/dasboard">Dasboard Page</Link></li>
-        </ul>
+      <Navbar bg="primary" variant="dark">
+        <Container>
+        <Navbar.Brand href="/dashboard">SyncBox</Navbar.Brand>
+        <Nav className="me-auto">
+          <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+          <Nav.Link href="#pricing">Pricing</Nav.Link>
+        </Nav>
+        <Navbar.Text>{token?.user}</Navbar.Text>
+        <AuthButton token={token} deleteToken={deleteToken} />
+        </Container>
+      </Navbar>
 
         <Switch>
           <Route exact path="/register"><RegisterPage setToken={saveToken} /></Route>
           <Route exact path="/login"><LoginPage setToken={saveToken} /></Route>
-          <PrivateRoute exact path="/dasboard"><DashboardPage /></PrivateRoute>
+          <PrivateRoute exact path="/dashboard"><DashboardPage /></PrivateRoute>
         </Switch>
       </div>
     </Router>
