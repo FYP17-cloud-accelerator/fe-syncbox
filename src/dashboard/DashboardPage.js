@@ -1,13 +1,20 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { Accordion, AccordionContext, Card, Col, Form, FormControl, InputGroup, ListGroup, Row, useAccordionButton } from "react-bootstrap";
+import { Accordion, AccordionContext, Card, Col, ListGroup, Row, useAccordionButton } from "react-bootstrap";
 import { base_url } from "../App";
 import useToken from "../auth/Token";
+import AlertMessage from "./components/AlertMessage";
+import DirectoryTile from "./components/DirectoryTile";
+import FileTile from "./components/FileTile";
 
 export default function DashboardPage() {
     const [fileData, setFileData] = useState({});
     const [startDate, setStartDate] = useState();
     const [startTime, setStartTime] = useState();
+    const [alertContent, setAlertContent] = useState();
+    const [alertType, setAlertType] = useState("success");
+    const [showAlert, setShowAlert] = useState(false);
+
     const { token } = useToken();
     let location = decodeURI(window.location.pathname.substr(6));
     console.log(location);
@@ -23,28 +30,67 @@ export default function DashboardPage() {
         }
     }, []);
 
-    const handleSubmit = async (filename, e) => {
+    const handleScheduleDownload = async (filename, e) => {
         e.preventDefault();
-        console.log(startDate, startTime, filename);
-        if (startDate && startTime) {
-            scheduleDownload(token?.user, `${location}/${filename}`, startDate, startTime);
+
+        if (token?.user && filename && startDate && startTime) {
+            return axios.get(`${base_url}/schedule?username=${token.user}&filename=${location}/${filename}&day=${startDate}&time=${startTime}`)
+                .then(response => {
+                    setAlertContent(`${filename} is scheduled to download successfully`);
+                    setAlertType("success");
+                    setShowAlert(true);
+                    return response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                    setAlertContent(`An error occurred`);
+                    setAlertType("danger");
+                    setShowAlert(true);
+                    return error;
+                });
+        } else {
+            let warn = `${token?.user ? "": "user "}${filename ? "": "& filename "}${startDate ? "": "& start date "}${startTime ? "": "& start time "}`;
+            setAlertContent(`${warn[0] === '&' ? warn.substring(2) : warn} not provided`);
+            setAlertType("warning");
+            setShowAlert(true);
+        }
+    }
+
+    const handleQuickDownload = async (filename) => {
+        if (token?.user && filename) {
+            return axios.get(`${base_url}/download?username=${token.user}&filename=${location}/${filename}`)
+                .then(response => {
+                    setAlertContent(`${filename} is downloaded successfully`);
+                    setAlertType("success");
+                    setShowAlert(true);
+                    return response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                    setAlertContent(`An error occurred`);
+                    setAlertType("danger");
+                    setShowAlert(true);
+                    return error;
+                });
+        } else {
+            let warn = `${token?.user ? "": "user "}${filename ? "": "& filename "}`;
+            setAlertContent(`${warn[0] === '&' ? warn.substring(2) : warn} not provided`);
+            setAlertType("warning");
+            setShowAlert(true);
         }
     }
 
     return (
         <div>
-            {fileData?.directories?.length > 0 || fileData?.files?.length > 0 ? (
+            {showAlert ? (<AlertMessage message={alertContent} show={setShowAlert} variant={alertType} />) : (<></>)}
+            {fileData?.directories?.length > 0 || fileData?.files?.length > 0 ? (<>
+                <ListGroup>
+                    {fileData.directories?.map((directory, key) => {
+                        return <DirectoryTile key={key} location={location} name={directory.name} />
+                    })}
+                </ListGroup>
                 <Accordion defaultActiveKey="0">
                     <ListGroup>
-                        {fileData.directories?.map((directory, key) => {
-                            return <ListGroup.Item key={key}>
-                                <Card>
-                                    <Card.Body>
-                                        <a href={`/data/${location}/${directory.name}`}>{directory.name}</a>
-                                    </Card.Body>
-                                </Card>
-                            </ListGroup.Item>
-                        })}
                         {fileData.files?.map((file, key) => {
                             return <ListGroup.Item key={key}>
                                 <Card>
@@ -57,45 +103,14 @@ export default function DashboardPage() {
                                         </Row>
                                     </Card.Body>
                                     <Accordion.Collapse eventKey={key}>
-                                        <Card.Footer>
-                                            <ListGroup>
-                                                <ListGroup.Item action onClick={() => downloadFile(token?.user, `${location}/${file.name}`)}>Download Now</ListGroup.Item>
-                                                <ListGroup.Item action>
-                                                    <Row>
-                                                        <Col xs={6} md={4}>Schedule Download</Col>
-                                                        <Col xs={12} md={8}>
-                                                            <Form onSubmit={(e) => handleSubmit(file.name, e)}>
-                                                                <Row className="align-items-center">
-                                                                    <Col xs="auto">
-                                                                        <Form.Label htmlFor="inlineFormInput" visuallyHidden>Start Time</Form.Label>
-                                                                        <InputGroup className="mb-2">
-                                                                            <InputGroup.Text>DATE</InputGroup.Text>
-                                                                            <FormControl type="date" placeholder="Start Time" onChange={e => setStartDate(e.target.value)} />
-                                                                        </InputGroup>
-                                                                    </Col>
-                                                                    <Col xs="auto">
-                                                                        <Form.Label htmlFor="inlineFormInputGroup" visuallyHidden>End Time</Form.Label>
-                                                                        <InputGroup className="mb-2">
-                                                                            <InputGroup.Text>TIME</InputGroup.Text>
-                                                                            <FormControl type="time" placeholder="End Time" onChange={e => setStartTime(e.target.value)} />
-                                                                        </InputGroup>
-                                                                    </Col>
-                                                                    <Col xs="auto">
-                                                                        <button type="submit" className="btn mb-2 btn-sm btn-primary">Schedule</button>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Form>
-                                                        </Col>
-                                                    </Row>
-                                                </ListGroup.Item>
-                                            </ListGroup>
-                                        </Card.Footer>
+                                        <FileTile file={file} download={handleQuickDownload} schedule={handleScheduleDownload} setStartDate={setStartDate} setStartTime={setStartTime} />
                                     </Accordion.Collapse>
                                 </Card>
                             </ListGroup.Item>
                         })}
                     </ListGroup>
                 </Accordion>
+            </>
             ) : (
                 <p>No data found!</p>
             )}
@@ -103,32 +118,19 @@ export default function DashboardPage() {
     );
 }
 
-async function downloadFile(username, filename) {
-    if (username && filename) {
-        return axios.get(`${base_url}/download?username=${username}&filename=${filename}`)
-            .then(response => {
-                console.log(response.data);
-                return response.data;
-            })
-            .catch(error => {
-                console.error(error);
-                return error;
-            });
+async function getUserDirectories(username, location) {
+    let url = `${base_url}/data?username=${username}`;
+    if (location) {
+        url += `&location=${location}`;
     }
-}
-
-async function scheduleDownload(username, filename, startDate, startTime) {
-    if (username && filename && startDate && startTime) {
-        return axios.get(`${base_url}/schedule?username=${username}&filename=${filename}&day=${startDate}&time=${startTime}`)
-            .then(response => {
-                console.log(response.data);
-                return response.data;
-            })
-            .catch(error => {
-                console.error(error);
-                return error;
-            });
-    }
+    return axios.get(url)
+        .then(response => {
+            return response.data;
+        })
+        .catch(error => {
+            console.error(error);
+            return error;
+        });
 }
 
 function CustomToggle({ children, eventKey, callback }) {
@@ -147,19 +149,4 @@ function CustomToggle({ children, eventKey, callback }) {
     >
         {children}
     </button>
-}
-
-async function getUserDirectories(username, location) {
-    let url = `${base_url}/data?username=${username}`;
-    if (location) {
-        url += `&location=${location}`;
-    }
-    return axios.get(url)
-        .then(response => {
-            return response.data;
-        })
-        .catch(error => {
-            console.error(error);
-            return error;
-        });
 }
