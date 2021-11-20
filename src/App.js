@@ -24,7 +24,6 @@ export default function App() {
         <Navbar.Brand href="/data/">SyncBox</Navbar.Brand>
         <Nav className="me-auto">
           <Nav.Link href="/data/">Dashboard</Nav.Link>
-          <Nav.Link href="#pricing">Pricing</Nav.Link>
         </Nav>
         <Navbar.Text>{token?.user}</Navbar.Text>
         <AuthButton token={token} deleteToken={deleteToken} />

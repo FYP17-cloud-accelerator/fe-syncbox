@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { Card, Col, Form, FormControl, InputGroup, ListGroup, Row } from "react-bootstrap";
 
-export default function FileTile({ file, download, schedule, setStartDate, setStartTime }) {
+export default function FileTile({ file, download, schedule }) {
+    const [startDate, setStartDate] = useState();
+    const [startTime, setStartTime] = useState();
+
     return (
         <Card.Footer>
             <ListGroup>
@@ -9,7 +13,7 @@ export default function FileTile({ file, download, schedule, setStartDate, setSt
                     <Row>
                         <Col xs={6} md={4}>Schedule Download</Col>
                         <Col xs={12} md={8}>
-                            <Form onSubmit={(e) => schedule(file.name, e)}>
+                            <Form onSubmit={(e) => schedule(e, file.name, startDate, startTime)}>
                                 <Row className="align-items-center">
                                     <Col xs="auto">
                                         <Form.Label htmlFor="inlineFormInput" visuallyHidden>Start Time</Form.Label>
