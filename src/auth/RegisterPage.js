@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import { Card, Form, Button } from "react-bootstrap";
+import { Card, Form, Button, Container, Row, Col } from "react-bootstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { base_url } from "../App";
 
@@ -20,7 +20,7 @@ export default function RegisterPage({ setToken }) {
         const response = await registerUser(username, password);
 
         if (response.token) {
-            setToken({token: response.token, user: username});
+            setToken({ token: response.token, user: username });
             history.replace(from);
         } else if (response.error) {
             setError(response.error);
@@ -29,29 +29,37 @@ export default function RegisterPage({ setToken }) {
 
     return (
         <div>
-            <Card className="text-center">
-                <Form onSubmit={handleSubmit}>
-                    <Card.Header>Welcome to SyncBox</Card.Header>
-                    <Card.Body>
-                        <Card.Title>User Registration</Card.Title>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>Username</Form.Label>
-                            <Form.Control type="email" placeholder="Enter Email Address" onChange={e => setUsername(e.target.value)} />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
-                        </Form.Group>
-                        <Card.Text className="text-muted">
-                            {error}
-                        </Card.Text>
-                        <Button variant="primary" type="submit">
-                            Register
-                        </Button>
-                    </Card.Body>
-                </Form>
-                <Link className="btn btn-primary" to="/login">Login</Link>
-            </Card>
+            <Container className="mt-5">
+                <Row>
+                    <Col></Col>
+                    <Col xs={6}>
+                        <Card className="text-center">
+                            <Form onSubmit={handleSubmit}>
+                                <Card.Header>Welcome to SyncBox</Card.Header>
+                                <Card.Body>
+                                    <Card.Title>User Registration</Card.Title>
+                                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                                        <Form.Label>Username</Form.Label>
+                                        <Form.Control type="email" placeholder="Enter Email Address" onChange={e => setUsername(e.target.value)} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3" controlId="formBasicPassword">
+                                        <Form.Label>Password</Form.Label>
+                                        <Form.Control type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+                                    </Form.Group>
+                                    <Card.Text className="text-muted">
+                                        {error}
+                                    </Card.Text>
+                                    <Button variant="primary" type="submit">
+                                        Register
+                                    </Button>
+                                </Card.Body>
+                            </Form>
+                            <Link className="btn btn-primary" to="/login">Login</Link>
+                        </Card>
+                    </Col>
+                    <Col></Col>
+                </Row>
+            </Container>
         </div>
     );
 }

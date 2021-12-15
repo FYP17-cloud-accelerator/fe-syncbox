@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { Accordion, AccordionContext, Card, Col, ListGroup, Row, useAccordionButton } from "react-bootstrap";
+import { Accordion, AccordionContext, Card, Col, ListGroup, Row, useAccordionButton, Container } from "react-bootstrap";
 import { base_url } from "../App";
 import useToken from "../auth/Token";
 import AlertMessage from "./components/AlertMessage";
@@ -97,38 +97,40 @@ export default function DashboardPage() {
 
     return (
         <div>
-            {showAlert ? (<AlertMessage message={alertContent} show={setShowAlert} variant={alertType} />) : (<></>)}
-            {fileData?.directories?.length > 0 || fileData?.files?.length > 0 ? (<>
-                <ListGroup>
-                    {fileData.directories?.map((directory, key) => {
-                        return <DirectoryTile key={key} id={key} location={location} name={directory.name} />
-                    })}
-                </ListGroup>
-                <Accordion defaultActiveKey="0">
+            <Container className="mt-3">
+                {showAlert ? (<AlertMessage message={alertContent} show={setShowAlert} variant={alertType} />) : (<></>)}
+                {fileData?.directories?.length > 0 || fileData?.files?.length > 0 ? (<>
                     <ListGroup>
-                        {fileData.files?.map((file, key) => {
-                            return <ListGroup.Item key={key}>
-                                <Card>
-                                    <Card.Body>
-                                        <Row>
-                                            <Col xs={12} md={8}>{file.name} ({file.size})</Col>
-                                            <Col xs={6} md={4}>
-                                                <CustomToggle eventKey={key}>Download Options</CustomToggle>
-                                            </Col>
-                                        </Row>
-                                    </Card.Body>
-                                    <Accordion.Collapse eventKey={key}>
-                                        <FileTile file={file} download={handleQuickDownload} schedule={handleScheduleDownload} />
-                                    </Accordion.Collapse>
-                                </Card>
-                            </ListGroup.Item>
+                        {fileData.directories?.map((directory, key) => {
+                            return <DirectoryTile key={key} id={key} location={location} name={directory.name} />
                         })}
                     </ListGroup>
-                </Accordion>
-            </>
-            ) : (
-                <p>No data found!</p>
-            )}
+                    <Accordion defaultActiveKey="0">
+                        <ListGroup>
+                            {fileData.files?.map((file, key) => {
+                                return <ListGroup.Item key={key}>
+                                    <Card>
+                                        <Card.Body>
+                                            <Row>
+                                                <Col xs={12} md={8}>{file.name} ({file.size})</Col>
+                                                <Col xs={6} md={4}>
+                                                    <CustomToggle eventKey={key}>Download Options</CustomToggle>
+                                                </Col>
+                                            </Row>
+                                        </Card.Body>
+                                        <Accordion.Collapse eventKey={key}>
+                                            <FileTile file={file} download={handleQuickDownload} schedule={handleScheduleDownload} />
+                                        </Accordion.Collapse>
+                                    </Card>
+                                </ListGroup.Item>
+                            })}
+                        </ListGroup>
+                    </Accordion>
+                </>
+                ) : (
+                    <p>No data found!</p>
+                )}
+            </Container>
         </div>
     );
 }
